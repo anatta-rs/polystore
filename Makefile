@@ -1,4 +1,4 @@
-.PHONY: fmt fmt-check lint test coverage coverage-summary coverage-gate check ci clean
+.PHONY: fmt fmt-check lint test coverage coverage-summary coverage-gate check ci clean hooks
 
 fmt:
 	cargo fmt --all
@@ -34,3 +34,11 @@ ci: check coverage-gate
 clean:
 	cargo clean
 	rm -rf coverage/ lcov.info *.profraw
+
+# Install local git hooks (pre-commit + pre-push). Run once after clone.
+hooks:
+	git config --local core.hooksPath .githooks
+	chmod +x .githooks/pre-commit .githooks/pre-push
+	@echo "✓ git hooks installed → .githooks/"
+	@echo "  pre-commit: fmt + clippy + test"
+	@echo "  pre-push:   make ci (+ coverage gate)"
