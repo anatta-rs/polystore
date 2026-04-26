@@ -1,0 +1,31 @@
+name: Release-plz
+
+on:
+  push:
+    branches: [main]
+
+# release-plz needs to open PRs and create releases.
+permissions:
+  contents: write
+  pull-requests: write
+
+# Avoid concurrent runs racing each other.
+concurrency:
+  group: release-plz-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-plz:
+    name: release-plz
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: MarcoIeni/release-plz-action@v0.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
