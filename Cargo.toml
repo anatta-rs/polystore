@@ -1,3 +1,7 @@
+# Mark this crate as its own workspace root so it doesn't get pulled into
+# the Anatta workspace when checked out under Anatta/workspaces/ for local dev.
+[workspace]
+
 [package]
 name = "polystore"
 version = "0.1.0"
