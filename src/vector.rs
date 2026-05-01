@@ -33,6 +33,23 @@ pub trait VectorStore: Send + Sync {
         payload: serde_json::Value,
     ) -> Result<()>;
 
+    /// Insert or replace a batch of vectors. Default impl loops
+    /// [`Self::upsert`] — fine for in-memory / test backends. Production
+    /// backends (sigil-api HTTP, Qdrant client, sigil engine direct)
+    /// override with a real batch (single HTTP body, single rebuild
+    /// trigger at the tail) for ~10-100× throughput on bulk ingest.
+    /// Returns the number of items persisted.
+    async fn upsert_batch(
+        &self,
+        items: Vec<(EntityId, Vec<f32>, serde_json::Value)>,
+    ) -> Result<usize> {
+        let n = items.len();
+        for (id, vector, payload) in items {
+            self.upsert(&id, vector, payload).await?;
+        }
+        Ok(n)
+    }
+
     /// Search for the `top_k` nearest vectors to `vector`. An optional
     /// `filter` (backend-specific JSON predicate) restricts the candidates.
     async fn search(
